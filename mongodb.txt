@@ -1,0 +1,329 @@
+db.createCollection("alunos")
+
+db.alunos.insert({
+ "nome" : "felipe",
+ "data_nascimento" : new Date(1994,02,26)
+})
+
+db.alunos.insert(
+    {
+        "nome" : "felipe",
+        "data_nascimento" : new Date(1994,02,26),
+        "curso" : {
+            "nome" : "Sistemas de Informção"
+        },
+        "notas" : [10.0, 9.0, 4.5],
+        "habilidades" : [
+            {
+                "nome" : "ingles",
+                "nivel" :  "avançado"
+            },
+            {
+                "nome" :  "taekwondo",
+                "nivel" :  "basico"
+            }
+        ]
+    }
+)
+
+db.alunos.find()
+
+db.alunos.remove(
+    {
+        "_id" : ObjectId("57412b844fa02576c03b6518")
+    }
+)
+
+
+db.alunos.insert(
+{
+  "nome" : "felipe",
+  "data_nascimento" : new Date(1994,02,26),
+  "notas" : [10, 9, 4.5],
+  "curso" : {
+    "nome" : "Sistemas de Informação"
+  },
+  "habilidades" : [
+    {"nome" : "ingles", "nivel" : "avançado"}
+  ]
+}
+)
+
+db.alunos.insert(
+  {
+  "nome" : "paulo",
+  "data_nascimento" : new Date(31,12,1979),
+  "notas" : [10,9,7],
+  "cursos" : {"nome" : "ciencias da computação"},
+  "habilidades" : [{"nome" : "ingles", "nivel" : "avançado"}, {"nome" : "francês", "nivel" : "avançado"}]
+  }
+)
+
+db.alunos.insert(
+  {
+    "nome" : "daniela",
+    "data_nascimento" : new Date(1995, 07, 17),
+    "notas" : [10,9,7],
+    "curso" : {"nomes" : "moda"},
+    "habilidades" : [{"nome" : "alemão", "nivel" : "básico"}]
+  }
+)
+
+
+db.alunos.find().pretty()
+
+db.alunos.find(
+  {
+    "nome" : "paulo"
+  }
+)
+
+db.alunos.insert(
+  {
+    "nome" : "paulo",
+    "curso" : "matemática"
+  }
+)
+
+db.alunos.find(
+  {
+    "nome" : "paulo"
+  }
+)
+
+db.alunos.find(
+  {
+    "habilidades.nome" : "ingles"
+  }
+)
+
+db.alunos.find(
+  {
+    "habilidades.nome" : "ingles",
+    "nome" : "felipe"
+  }
+)
+
+#or 
+
+db.alunos.find(
+  {
+    $or : [
+      {"habilidades.nome" : "alemão"},
+      {"habilidades.nome" : "ingles"}
+    ]
+  }
+)
+
+#com OR e AND juntos
+
+db.alunos.find(
+  {
+    $or : [
+        {"habilidades.nome" : "alemão"},
+        {"habilidades.nome" : "ingles"}
+    ],
+    "nome" : "daniela"
+  }
+)
+
+#em vez de OR, pode usar IN para ficar mais bonito
+
+db.alunos.find(
+  {
+    "habilidades.nome" : {
+      $in : ["alemão", "ingles"]
+    }  
+  }
+)
+
+
+#update apenas primeira ocorrencia busca (default)
+
+db.alunos.insert(
+  {
+    "nome" : "ines",
+    "data_nascimento" : new Date(1995, 07, 17),
+    "notas" : [10,9,7],
+    "curso" : {"nome" : "sistema de informação"},
+    "habilidades" : [{"nome" : "alemão", "nivel" : "básico"}]
+  }
+)
+
+db.alunos.update(
+  {"curso.nome" : "sistema de informação"},
+  {
+    $set : {
+      "curso.nome" : "Sistemas de Informação"
+    } 
+  }
+)
+
+#update todas linhas do where
+
+db.alunos.insert(
+  {
+    "nome" : "bene",
+    "data_nascimento" : new Date(1995, 07, 17),
+    "notas" : [10,9,7],
+    "curso" : {"nome" : "Sistemas de Informação"},
+    "habilidades" : [{"nome" : "alemão", "nivel" : "básico"}]
+  }
+)
+
+db.alunos.update(
+  {"curso.nome" : "Sistemas de Informação"},
+  {
+    $set : {
+      "curso.nome" : "SISTEMAS DE INFORMAÇÃO"
+    }
+  },
+  {
+    multi : true
+  }
+)
+
+#update: adicionar um item numa array
+
+db.alunos.update(
+  {"_id" :  ObjectId("5741ffff37ee574baac7bce3")},
+  { $push : {"notas" : 4.5 } }
+)
+
+#update: adicionar vários itens numa array
+
+db.alunos.update(
+  {"_id" :  ObjectId("5741ffff37ee574baac7bce3")},
+  { $push : {
+      "notas" : {
+         $each : [8.5, 4.5]
+      }
+    }
+  }
+)
+
+#procurar por um valor dentro de uma array
+
+db.alunos.find(
+  {
+    "notas" : 4.5
+  }
+)
+
+
+#procurar por alunos com valor maiqor que x dentro de um array
+db.alunos.find(
+  {
+    "notas" : {
+      $gt : 5
+    }
+  }
+)
+
+#ordernar por ordem crescente
+
+db.alunos.find().sort(
+  {
+    "nome" : 1
+  }
+)
+
+#ordernar por ordem descrescente
+
+db.alunos.find().sort(
+  {
+    "nome" : -1
+  }
+)
+
+#limitar o numero de resultados
+db.alunos.find().sort(
+  {
+    "nome" : 1
+  }
+).limit(2)
+
+#importar arquivo com json de array de alunos
+
+mongoimport -c alunos --jsonArray < alunos.json
+
+#modelo deum item do arquivo
+{ "_id" : ObjectId("57421c1ffa1c7eaba5092555"), "nome" : "Marcelo", "localizacao" : { "type" : "Point", "coordinates" : [ -23.5640265, -46.6527128 ] } }
+
+#criar indice de geolocalização (sem levar em conta altitude)
+
+db.alunos.createIndex(
+  {
+    "localizacao" : "2dsphere"
+  }
+)
+
+#(busca por proximidade) buscando pessoas próximas a coordenada x. 
+
+db.alunos.aggregate([
+  {
+    $geoNear : {
+      near : {
+        coordinates: [ -23.5640265, -46.6527128 ],
+        type: "Point"
+      },
+      distanceField : "distancia.calculada",
+      spherical : true
+    }
+  }
+])
+
+#busca por proximidade trazendo apenas os 4 primeiros
+
+db.alunos.aggregate([
+  {
+    $geoNear : {
+      near : {
+        coordinates: [ -23.5640265, -46.6527128 ],
+        type: "Point"
+      },
+      distanceField : "distancia.calculada",
+      spherical : true,
+      num: 4
+    }
+  }
+])
+
+#busca por proximidade ignorando o primeiro item (q é o próprio objeto procurado)
+
+db.alunos.aggregate([
+  {
+    $geoNear : {
+      near : {
+        coordinates: [ -23.5640265, -46.6527128 ],
+        type: "Point"
+      },
+      distanceField : "distancia.calculada",
+      spherical : true,
+      num: 4
+    }
+  },
+  {
+    $skip : 1
+  }
+])
+
+
+
+
+db.alunos.aggregate([
+{
+  $geoNear : {
+    near :{
+      coordinates : [-23.5640265, -46.6527128],
+      type : "Point"
+    },
+    distanceField : "distancia.calculada",
+    spherical : true,
+    num: 4
+  }
+},
+{
+  $skip : 1
+}
+])
